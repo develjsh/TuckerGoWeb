@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -38,5 +39,17 @@ func TestBarPath_WithoutName(t *testing.T) {
 
 	assert.Equal(http.StatusOK, res.Code)
 	data, _ := ioutil.ReadAll(res.Body)
-	assert.Equal("Hello World!", string(data))
+	assert.Equal("Hello bar", string(data))
+}
+
+func TestUserHandler_WithJSON(t *testing.T) {
+	assert := assert.New(t)
+
+	res := httptest.NewRecorder()
+	req := httptest.NewRequest("POST", "/user", strings.NewReader(`{"first_name":"tucker", "last_name":"kim", "emai;":"sk"}`))
+
+	mux := NewHttpHandler()
+	mux.ServeHTTP(res, req)
+
+	assert.Equal(http.StatusCreated, res.Code)
 }
